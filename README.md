@@ -38,15 +38,13 @@ For more information, see the following documentation: [AWS CLI Alias Usage](htt
 
 Make sure that you are using version ``1.11.24`` or higher of the AWS CLI.
 
-You can download the latest version of the AWS CLI from the following link: [https://aws.amazon.com/cli/](https://aws.amazon.com/cli/).
-
 You can determine the version by running:
 
 ```shell
 $ aws --version
 ```
 
-For information on installation and upgrading of the AWS CLI, please refer to the [AWS CLI User Guide](http://docs.aws.amazon.com/cli/latest/userguide/installing.html).
+You can download the latest version of the AWS CLI from the following link: [https://aws.amazon.com/cli/](https://aws.amazon.com/cli/).
 
 ### The tostring alias
 
@@ -54,11 +52,27 @@ The tostring alias requires to have the jp command installed.
 
 For installing the command line interface for JMESPath i.e. jp, see: [https://github.com/jmespath/jp](https://github.com/jmespath/jp).
 
+```shell
+$ brew install jp
+```
+
+```shell
+$ sudo apt-get install jp
+```
+
 ### tostring-with-jq alias
 
 The tostring-with-jq alias requires to have the jq command installed.
 
 For installing the command-line JSON processor i.e. jq, see: [https://jqlang.github.io/jq/download/](https://jqlang.github.io/jq/download/).
+
+```shell
+$ brew install jq
+```
+
+```shell
+$ sudo apt-get install jq
+```
 
 ## Getting Started
 
