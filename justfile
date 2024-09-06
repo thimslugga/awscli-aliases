@@ -47,17 +47,13 @@ timestamp := `date +%s`
 
 ## Recipes
 
+# Default recipe (equivalent to 'all' in Makefile)
 #default:
 #  @just --summary
 
 #@default:
 #	@just --list --justfile {{ justfile() }}
 
-# lists the tasks (ensure this is task #1 in the list)
-@_list:
-	just --list
-
-# Default recipe (equivalent to 'all' in Makefile)
 
 # Lists the tasks and variables in the justfile
 @_list:
