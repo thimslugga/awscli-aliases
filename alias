@@ -1,21 +1,18 @@
 [toplevel]
 
+## Sub-Commands ##
+
+[command ec2]
+regions = describe-regions --query Regions[].RegionName
+
+[command ec2]
+instance-profiles = !aws iam list-instance-profiles
+
+
+## Aliases ##
+
 whoami = sts get-caller-identity
-
-create-assume-role =
-  !f() {
-    aws iam create-role --role-name "${1}" \
-      --assume-role-policy-document \
-        "{\"Statement\":[{\
-            \"Action\":\"sts:AssumeRole\",\
-            \"Effect\":\"Allow\",\
-            \"Principal\":{\"Service\":\""${2}".amazonaws.com\"},\
-            \"Sid\":\"\"\
-          }],\
-          \"Version\":\"2012-10-17\"\
-        }";
-  }; f
-
+whoami2 = sts get-caller-identity --query Account --output text
 
 running-instances = ec2 describe-instances \
     --filter Name=instance-state-name,Values=running \
@@ -26,7 +23,18 @@ ebs-volumes= ec2 describe-volumes \
     --query 'Volumes[].{VolumeId: VolumeId,State: State,Size: Size,Name: Tags[0].Value,AZ: AvailabilityZone}' \
     --output table
 
-amazon-linux-amis = ec2 describe-images \
+amazon-linux-2-amis = ec2 describe-images \
+    --filter \
+      Name=owner-alias,Values=amazon \
+      Name=name,Values="amzn-ami-hvm-*" \
+      Name=architecture,Values=x86_64 \
+      Name=virtualization-type,Values=hvm \
+      Name=root-device-type,Values=ebs \
+      Name=block-device-mapping.volume-type,Values=gp2 \
+    --query "reverse(sort_by(Images, &CreationDate))[*].[ImageId,Name,Description]" \
+    --output text
+
+amazon-linux-2023-amis = ec2 describe-images \
     --filter \
       Name=owner-alias,Values=amazon \
       Name=name,Values="amzn-ami-hvm-*" \
@@ -39,35 +47,29 @@ amazon-linux-amis = ec2 describe-images \
 
 list-sgs = ec2 describe-security-groups --query "SecurityGroups[].[GroupId, GroupName]" --output text
 
-sg-rules = !f() { aws ec2 describe-security-groups \
-    --query "SecurityGroups[].IpPermissions[].[FromPort,ToPort,IpProtocol,join(',',IpRanges[].CidrIp)]" \
-    --group-id "$1" --output text; }; f
 
+## Functions ##
+
+# aliasname =
+#     !f() {
+#         script content
+# }; f
+
+# https://github.com/jmespath/jp
 tostring =
   !f() {
     jp -f "${1}" 'to_string(@)'
   }; f
 
+# https://jqlang.github.io/jq/download/
 tostring-with-jq =
   !f() {
     cat "${1}" | jq 'tostring'
   }; f
 
-authorize-my-ip =
-  !f() {
-    ip=$(aws myip)
-    aws ec2 authorize-security-group-ingress --group-id ${1} --cidr $ip/32 --protocol tcp --port 22
-  }; f
-
 get-group-id =
   !f() {
     aws ec2 describe-security-groups --filters Name=group-name,Values=${1} --query SecurityGroups[0].GroupId --output text
-  }; f
-
-authorize-my-ip-by-name =
-  !f() {
-    group_id=$(aws get-group-id "${1}")
-    aws authorize-my-ip "$group_id"
   }; f
 
 # list all security group port ranges open to 0.0.0.0/0
@@ -83,7 +85,9 @@ public-ports = ec2 describe-security-groups \
   }'
 
 # List or set your region
-region = !f() { [[ $# -eq 1 ]] && aws configure set region "$1" || aws configure get region; }; f
+region = !f() {
+    [[ $# -eq 1 ]] && aws configure set region "$1" || aws configure get region;
+  }; f
 
 find-access-key = !f() {
     clear_to_eol=$(tput el)
@@ -108,9 +112,41 @@ docker-ecr-login =
     docker login -u AWS -p $passwd $endpoint
   }; f
 
+create-assume-role =
+  !f() {
+    aws iam create-role --role-name "${1}" \
+      --assume-role-policy-document \
+        "{\"Statement\":[{\
+            \"Action\":\"sts:AssumeRole\",\
+            \"Effect\":\"Allow\",\
+            \"Principal\":{\"Service\":\""${2}".amazonaws.com\"},\
+            \"Sid\":\"\"\
+          }],\
+          \"Version\":\"2012-10-17\"\
+        }";
+  }; f
+
+sg-rules = !f() { 
+    aws ec2 describe-security-groups \
+      --query "SecurityGroups[].IpPermissions[].[FromPort,ToPort,IpProtocol,join(',',IpRanges[].CidrIp)]" \
+      --group-id "$1" --output text;
+  }; f
+
 myip =
   !f() {
     dig +short myip.opendns.com @resolver1.opendns.com
+  }; f
+
+authorize-my-ip =
+  !f() {
+    ip=$(aws myip)
+    aws ec2 authorize-security-group-ingress --group-id ${1} --cidr $ip/32 --protocol tcp --port 22
+  }; f
+
+authorize-my-ip-by-name =
+  !f() {
+    group_id=$(aws get-group-id "${1}")
+    aws authorize-my-ip "$group_id"
   }; f
 
 allow-my-ip =
@@ -133,4 +169,9 @@ allow-my-ip-all =
 revoke-my-ip-all =
   !f() {
     aws revoke-my-ip ${1} all all
+  }; f
+
+textalert =
+  !f() {
+    aws sns publish --message "${1}" --phone-number ${2}
   }; f
