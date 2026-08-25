@@ -12,10 +12,6 @@ indent_size = 2
 trim_trailing_whitespace = false
 insert_final_newline = false
 
-#[{.,}*.{js{,*},y{a,}ml}]
-#indent_style = space
-#indent_size = 2
-
 # git
 [.git*]
 indent_style = tab
@@ -30,7 +26,6 @@ indent_style = space
 indent_size = 2
 trim_trailing_whitespace = false
 insert_final_newline = false
-
 #shell_variant      = bash
 #shell_variant      = posix # like -ln=posix
 #binary_next_line   = true  # like -bn
@@ -40,56 +35,7 @@ insert_final_newline = false
 #function_next_line = true  # like -fn
 #never_split        = true  # like -ns
 
-# Makefiles
-[{Makefile,makefile}]
-indent_style = tab
-indent_size = 4
-
-# Justfiles
-[{justfile,.justfile,.justfile.user}]
-indent_style = tab
-indent_size = 4
-
-# XML
-[*.{xml}]
-indent_style = space
-indent_size = 2
-insert_final_newline = ignore
-
-# JSON
-[*.{json,json5}]
-indent_style = space
-indent_size = 2
-insert_final_newline = ignore
-
-# YAML
-[*.{y{a,}ml}]
-indent_style = space
-indent_size = 2
-insert_final_newline = false
-
-# TOML
-[*.toml]
-indent_style = space
-indent_size = 2
-insert_final_newline = false
-
-# ini configuration files
-[*.ini]
-indent_style = space
-indent_size = 4
-trim_trailing_whitespace = false
-insert_final_newline = true
-
-# Markdown
-[*.{md,mkdn,mdx}]
-indent_style = space
-#indent_size = 2
-#max_line_length = 80
-trim_trailing_whitespace = false
-
-# Python
-[*.{py}]
+[*.{py,pyi}]
 charset = utf-8
 end_of_line = lf
 indent_style = space
@@ -97,3 +43,39 @@ indent_size = 4
 max_line_length = 119
 trim_trailing_whitespace = true
 insert_final_newline = true
+
+[Makefile]
+indent_style = tab
+indent_size = 4
+
+[justfile]
+indent_style = space
+indent_size = 4
+
+[*.xml]
+indent_style = space
+indent_size = 2
+
+[*.{json,json5}]
+indent_style = space
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.toml]
+indent_style = space
+indent_size = 4
+
+[*.ini]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = false
+insert_final_newline = true
+
+[*.{md,mdx}]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+

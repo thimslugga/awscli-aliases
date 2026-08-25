@@ -2,17 +2,15 @@
 
 ## Sub-Commands ##
 
-[command ec2]
-regions = describe-regions --query Regions[].RegionName
-
-[command ec2]
-instance-profiles = !aws iam list-instance-profiles
-
+#[command ec2]
+#instance-profiles = !aws iam list-instance-profiles
 
 ## Aliases ##
 
 whoami = sts get-caller-identity
 whoami2 = sts get-caller-identity --query Account --output text
+
+regions = ec2 describe-regions --query Regions[].RegionName
 
 running-instances = ec2 describe-instances \
   --filter Name=instance-state-name,Values=running \
@@ -24,7 +22,7 @@ ebs-volumes= ec2 describe-volumes \
   --output table
 
 # fixme
-amazon-linux-2-amis = ec2 describe-images \
+al2-ami = ec2 describe-images \
   --filter \
   Name=owner-alias,Values=amazon \
   Name=name,Values="amzn-ami-hvm-*" \
@@ -36,7 +34,7 @@ amazon-linux-2-amis = ec2 describe-images \
   --output text
 
 # fixme
-amazon-linux-2023-amis = ec2 describe-images \
+al2023-ami = ec2 describe-images \
   --filter \
   Name=owner-alias,Values=amazon \
   Name=name,Values="amzn-ami-hvm-*" \

@@ -1,6 +1,6 @@
-# awscli-aliases
+# My custom awscli-aliases
 
-Repository for AWS CLI aliases.
+Repository for my custom AWS CLI aliases.
 
 ## Overview
 
