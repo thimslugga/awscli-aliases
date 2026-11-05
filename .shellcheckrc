@@ -1,0 +1,11 @@
+# .shellcheckrc
+
+# Use BASH shell dialect
+shell=bash
+
+# Allow opening any sourced file, even if not specified as input
+# (enable for projects with sourced files)
+external-sources=true
+
+# Enable all optional checks
+enable=all

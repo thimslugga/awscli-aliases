@@ -77,3 +77,39 @@ system-info:
 	@echo "architecture: {{arch()}}"
 	@echo "os: {{os()}}"
 	@echo "os family: {{os_family()}}"
+
+# Install the aliases (symlinks ~/.aws/cli/alias to this checkout)
+install:
+	mkdir -p ~/.aws/cli
+	ln -sfn "{{justfile_directory()}}/alias" ~/.aws/cli/alias
+
+# Run all linters
+lint: lint-install lint-aliases lint-docs
+
+# Lint the installer
+lint-install:
+	shellcheck install.sh
+
+# Lint every `!f() { ... }; f` shell alias as POSIX sh (aliases run via /bin/sh, which may be dash)
+lint-aliases:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	tmp=$(mktemp -d)
+	trap 'rm -rf "$tmp"' EXIT
+	# An alias starts at `name =` in column 0; its body continues on indented or blank lines
+	awk -v dir="$tmp" '
+		/^[A-Za-z0-9_-]+ *=/ { name = $1; body = $0; sub(/^[^=]*= */, "", body); out = dir "/" name ".sh"; print body > out; next }
+		/^[ \t]/ && out { print > out; next }
+		/^[^ \t]/ { out = "" }
+	' alias
+	failed=0
+	for f in "$tmp"/*.sh; do
+		grep -q '^ *!' "$f" || continue
+		sed -i 's/^\( *\)!/\1/; 1s/^/#!\/bin\/sh\n/' "$f"
+		shellcheck -s sh -S warning -e SC2016,SC2119,SC2120 "$f" || failed=1
+	done
+	exit "$failed"
+
+# Lint the README
+lint-docs:
+	rumdl check README.md
