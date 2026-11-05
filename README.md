@@ -6,28 +6,31 @@ Repository for my custom AWS CLI aliases.
 
 This repository contains a set of aliases for the AWS CLI. The aliases are defined in the ``alias`` file and can be used to simplify the usage of the AWS CLI.
 
-The aliases are defined in the following format:
+The aliases are defined in INI format, without the leading `aws`:
 
-```shell
-alias <alias-name>='<command>'
+```ini
+whoami = sts get-caller-identity
 ```
 
-For example:
+Aliases prefixed with `!` are run as shell commands, which allows defining functions that take arguments:
 
-```shell
-alias whoami='aws sts get-caller-identity'
+```ini
+list-user-keys =
+  !f() {
+    aws iam list-access-keys --user-name "$1" --query "AccessKeyMetadata[].AccessKeyId" --output text
+  }; f
 ```
 
-The above alias can be used to get the account ID, user ID, and ARN of the IAM user whose credentials are being used to run the command.
+The ``whoami`` alias above can be used to get the account ID, user ID, and ARN of the IAM user whose credentials are being used to run the command.
 
 ```shell
-$ aws whoami
+aws whoami
 ```
 
 The above command is equivalent to running:
 
 ```shell
-$ aws sts get-caller-identity
+aws sts get-caller-identity
 ```
 
 For more information, see the following documentation: [AWS CLI Alias Usage](https://docs.aws.amazon.com/cli/latest/userguide/cli-usage-alias.html)
@@ -36,15 +39,19 @@ For more information, see the following documentation: [AWS CLI Alias Usage](htt
 
 ### AWS CLI
 
-Make sure that you are using version ``1.11.24`` or higher of the AWS CLI.
+AWS CLI v2 is recommended. Basic aliases work with version ``1.11.24`` or higher, but some aliases (e.g. ``ecs-exec``) require v2.
 
 You can determine the version by running:
 
 ```shell
-$ aws --version
+aws --version
 ```
 
 You can download the latest version of the AWS CLI from the following link: [https://aws.amazon.com/cli/](https://aws.amazon.com/cli/).
+
+### jq
+
+Many of the function aliases (e.g. ``generate-sts-token``, ``assume-role``, ``get-asg-instance-ips``) pipe output through jq. See the jq install instructions below.
 
 ### The tostring alias
 
@@ -53,11 +60,11 @@ The tostring alias requires to have the jp command installed.
 For installing the command line interface for JMESPath i.e. jp, see: [https://github.com/jmespath/jp](https://github.com/jmespath/jp).
 
 ```shell
-$ brew install jp
+brew install jp
 ```
 
 ```shell
-$ sudo apt-get install jp
+sudo apt-get install jp
 ```
 
 ### tostring-with-jq alias
@@ -67,21 +74,30 @@ The tostring-with-jq alias requires to have the jq command installed.
 For installing the command-line JSON processor i.e. jq, see: [https://jqlang.github.io/jq/download/](https://jqlang.github.io/jq/download/).
 
 ```shell
-$ brew install jq
+brew install jq
 ```
 
 ```shell
-$ sudo apt-get install jq
+sudo apt-get install jq
 ```
 
 ## Getting Started
 
-To start using aliases available in this repository, run the following commands:
+To start using aliases available in this repository, run the installer:
 
 ```shell
-$ git clone
-$ mkdir -p ~/.aws/cli
-$ cp awscli-aliases/alias ~/.aws/cli/alias
+curl -fsSL https://raw.githubusercontent.com/thimslugga/awscli-aliases/main/install.sh | bash
+```
+
+The installer clones the repository to ``~/.aws/awscli-aliases`` and symlinks ``~/.aws/cli/alias`` to it,
+backing up any existing alias file first. Re-run it at any time to pull the latest aliases.
+
+Or install manually:
+
+```shell
+git clone https://github.com/thimslugga/awscli-aliases.git
+mkdir -p ~/.aws/cli
+cp awscli-aliases/alias ~/.aws/cli/alias
 ```
 
 To test that the aliases now work, run the following alias:
@@ -102,6 +118,8 @@ This should display the same response as the ``aws sts get-caller-identity`` com
 
 ## Contributing
 
-Contributions are welcome! For more information, see the [CONTRIBUTING](CONTRIBUTING.md) file.
+Contributions are welcome! Please open an issue or pull request.
 
 ## License
+
+See the [LICENSE](LICENSE) file.
