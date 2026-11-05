@@ -116,6 +116,33 @@ This should display the same response as the ``aws sts get-caller-identity`` com
 }
 ```
 
+## Assuming IAM roles
+
+For roles you use regularly, define a role profile in ``~/.aws/config`` instead of storing temporary credentials.
+The AWS CLI assumes the role on demand, caches the credentials in ``~/.aws/cli/cache``, and refreshes them when they expire:
+
+```ini
+[profile admin]
+role_arn = arn:aws:iam::123456789012:role/Admin
+source_profile = default
+# Optional:
+# mfa_serial = arn:aws:iam::123456789012:mfa/myuser
+# duration_seconds = 3600
+```
+
+```shell
+aws whoami --profile admin
+export AWS_PROFILE=admin
+```
+
+On EC2, ECS, or Lambda, use ``credential_source = Ec2InstanceMetadata`` (or ``EcsContainer`` / ``Environment``) instead of ``source_profile``.
+
+For a one-off role assumption, the ``assume-role`` alias prints ``export`` statements for the current shell only:
+
+```shell
+eval "$(aws assume-role arn:aws:iam::123456789012:role/Admin)"
+```
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or pull request.
